@@ -1,25 +1,24 @@
 #include "same70.h"                     // Device header
+#include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX
 
 void led_init(void);
 #define LED_ON 1
 #define LED_OFF 0
 void led_setState(int led_state);
-void delay_ms(int time_ms);
-void delay_us(int time_us);
 void button_init(void);
 int button_isPressed(void);
 
 int main(){
 	SystemCoreClockUpdate();
+	osKernelInitialize();
 	led_init();
 	button_init();
-
+	osKernelStart();
 	while(1){
-		if(button_isPressed()){
-			led_setState(LED_ON);
-		}else{
-			led_setState(LED_OFF);
-		}
+		led_setState(LED_ON);
+		osDelay(500);
+		led_setState(LED_OFF);
+		osDelay(500);
 	}
 }
 
@@ -47,17 +46,6 @@ void led_setState(int led_state){
 		PIOC->PIO_CODR = PIO_CODR_P8;//Output low: led on
 	}else{
 		PIOC->PIO_SODR = PIO_SODR_P8;//Ouput floating: led off
-	}
-}
-
-void delay_ms(int time_ms){
-	delay_us(time_ms*1000);
-}
-
-#define DELAY_SCALE_FACTOR_US 2
-void delay_us(int time_us){
-	unsigned int total_time  = time_us * (SystemCoreClock /(1000000 * DELAY_SCALE_FACTOR_US));
-	for(unsigned int i = 0; i< total_time; i++){
 	}
 }
 
